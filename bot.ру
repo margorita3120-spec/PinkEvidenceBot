@@ -1,0 +1,28 @@
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
+import asyncio
+import os
+
+TOKEN = os.getenv("TOKEN")
+CHANNEL_ID = -1003996206169
+
+bot = Bot(token=TOKEN)
+dp = Dispatcher()
+
+@dp.message(Command("start"))
+async def start(message: types.Message):
+    await message.answer("Привет! Присылай сюда свою историю.")
+
+@dp.message()
+async def forward_to_channel(message: types.Message):
+    if message.text and not message.text.startswith('/'):
+        username = message.from_user.username or "Аноним"
+        text = f"Новая история:\n\n{message.text}\n\nОт: @{username}"
+        await bot.send_message(CHANNEL_ID, text)
+        await message.answer("Спасибо, история сохранена в тайне!")
+
+async def main():
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
